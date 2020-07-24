@@ -6,7 +6,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CircleButton = (props) => {
     return (
-        <TouchableOpacity onPress = {() => props.pressHandler()}>
+        <TouchableOpacity onPress = {props.pressHandler ? () => props.pressHandler() : null}>
         <ProgressCircle
             percent={0}
             radius={35}

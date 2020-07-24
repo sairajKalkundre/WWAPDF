@@ -53,7 +53,7 @@ const All = ({route , navigation}) => {
             <View style = {styles.container}>
                 <View>
                     <Searchbar
-                            style = {{marginTop : 15 ,marginLeft : 15 , marginRight : 40 , marginBottom : 15 ,height : 40, backgroundColor : '#282828'}}
+                            style = {{marginTop : 15 ,marginLeft : 15 , marginRight : 40  ,height : 40, backgroundColor : '#282828'}}
                             theme = {{ colors : {text : 'white' , placeholder : 'white'}}}
                             placeholder="Search case no : eg. 1"
                             onChangeText = {e => searchText(e)}
@@ -62,25 +62,23 @@ const All = ({route , navigation}) => {
                 </View>
                 <Text style = {{color : '#b1ff32' , margin : 15 , fontWeight : 'bold' , fontSize : 20}}>Case</Text>
                       
-                <Card style = {{ margin : 5,backgroundColor : 'black'}}>
-                <View style = {{marginTop : 5, marginLeft:40 , borderBottomColor : '#717D7E' , borderBottomWidth : 1}}/>
+                <View style = {{marginLeft : 10 ,marginRight: 10 , borderBottomColor : '#717D7E' , borderBottomWidth : 1}}/>
                    <FlatList
                         data = {filterDisplay}
                         renderItem = {({item}) => (
                             <ScrollView>
                                 <TouchableOpacity onPress = {() => passKey({item})}>
                                 <View style = {{flexDirection : 'row' }}>
-                                    <Icon name= 'cat' size={30} color="#717D7E" style = {{margin : 8 }} />
+                                    {/* <Icon name= 'cat' size={30} color="#717D7E" style = {{margin : 8 }} /> */}
                                     <Text style = {{color : 'white' , margin : 15 , fontWeight : 'bold' , fontSize : 17}}>Case No {item.text}</Text>
                                     <Icon name= 'arrow-right' size={15} color="#717D7E" style = {{marginRight : 15 ,marginTop: 15 ,marginLeft: 'auto' ,  alignContent : 'flex-end'}} />
                                 </View>
                                 </TouchableOpacity>
-                                <View style = {{ marginLeft : 45, borderBottomColor : '#717D7E' , borderBottomWidth : 1}}/>
+                                <View style = {{marginLeft : 10 ,marginRight: 10 , borderBottomColor : '#717D7E' , borderBottomWidth : 1}}/>
                            </ScrollView>
                           
                         )}
                         />                   
-                 </Card>
             </View>
         )
 }

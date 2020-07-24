@@ -39,7 +39,7 @@ export default function EditProfile ({route , navigation}){
     }
 
     const displayAvatar = () => {
-      if(imgUrl == ''){
+      if(imgUrl === ''){
         return  <Avatar.Image size = {90} source = {require('_assets/images/myProfile.jpg')} style = {{margin : 10 , alignSelf : 'center'}} />
       }
       else{
@@ -54,33 +54,50 @@ export default function EditProfile ({route , navigation}){
 
     function upload() {
       const profile = storage().ref('images/' + user)
-      profile.putFile(imgUrl)
-                   .then((snapshot) => {
-                                     console.log('Image Uploaded');
-                                     profile.getDownloadURL()
-                                     .then((url) => {
-                                       database().ref('/usersreact/' + user)
-                                                  .update({
-                                                    userId : user,
-                                                    imgurl : url,
-                                                    userName : name,
-                                                    designation : desig
-                                                  })
-                                                  .then(() => {
-                                                              setLoading(false);
-                                                              console.log('Data added')})
-                                                              navigation.goBack()
-                                                    })
-                                                  })
-                                     .catch((e) => {
-                                                 setLoading(false);
-                                                 console.log('Error' , e)});
+        if(imgUrl === ''){
+            database().ref('/usersreact/' + user)
+            .update({
+              userId : user,
+              userName : name,
+              designation : desig
+            })
+            .then(() => {
+                        setLoading(false);
+                        console.log('Data added')
+                        navigation.goBack()
+                      });
+          }
+        else{
+            profile.putFile(imgUrl)
+            .then((snapshot) => {
+                              console.log('Image Uploaded');
+                              profile.getDownloadURL()
+                              .then((url) => {
+                                database().ref('/usersreact/' + user)
+                                          .update({
+                                            userId : user,
+                                            imgurl : url,
+                                            userName : name,
+                                            designation : desig
+                                          })
+                                          .then(() => {
+                                                      setLoading(false);
+                                                      console.log('Data added')
+                                                      navigation.goBack()
+                                                    });
+                                                      
+                                            });
+                                          })
+                              .catch((e) => {
+                                          setLoading(false);
+                                          console.log('Error' , e)});
+        }
 
     }
     React.useLayoutEffect(() => {
         navigation.setOptions({
           headerRight: () => (
-              <View style = {{flexDirection : 'row' , marginRight : 10}}>
+              <View style = {{flexDirection : 'row' , marginRight : 20}}>
                 <ActivityIndicator animating = {isLoading} style = {{marginRight : 10}}  size = 'small' color = '#fff'/>
                  <TouchableOpacity onPress = {() => uploadProfile()}>
                      <Icon name = 'check' color = 'white' size = {20}></Icon>
@@ -88,7 +105,7 @@ export default function EditProfile ({route , navigation}){
             </View>
           ),
           headerLeft: () => (
-            <View style = {{flexDirection : 'row' , marginLeft : 10}}>
+            <View style = {{flexDirection : 'row' , marginLeft : 20}}>
                <TouchableOpacity onPress = {() => navigation.goBack()}>
                    <Icon name = 'times' color = 'white' size = {20}></Icon>
                </TouchableOpacity>
@@ -107,7 +124,7 @@ export default function EditProfile ({route , navigation}){
                       underlineColor = 'white'
                       style = {{margin : 10}}
                       multiline = {true}
-                      label = ' Name'
+                      label = 'Name'
                       value = {name}
                       onChangeText = {(text) => setName(text)}
                       />
@@ -131,6 +148,5 @@ const styles = StyleSheet.create({
       flex : 1,
       backgroundColor : 'black',
       alignItems : 'stretch',
-      
     }
   })

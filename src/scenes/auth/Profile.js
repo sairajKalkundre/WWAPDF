@@ -1,5 +1,5 @@
 import React,{useState}  from 'react';
-import {View,Text,StyleSheet} from 'react-native';
+import {View,Text,StyleSheet,YellowBox} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { StackActions } from '@react-navigation/native';
@@ -12,9 +12,11 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import {CheckInternet} from '_atoms';
 
 export default function Profile ({navigation}){
+      YellowBox.ignoreWarnings(['Clipboard'])
       const [visible , setVisible] = useState(false);
       const netInfo = useNetInfo();
-
+      const user = auth().currentUser;
+      console.log('Phone' , user.phoneNumber);
       React.useLayoutEffect(() => {
           navigation.setOptions({
           

@@ -1,6 +1,6 @@
 import React , {useState, useEffect} from 'react';
 import {View , ScrollView} from 'react-native';
-import {Text , Provider} from 'react-native-paper';
+import {Text , Provider , ActivityIndicator} from 'react-native-paper';
 import database from '@react-native-firebase/database';
 import Geolocation from '@react-native-community/geolocation';
 import Icon from 'react-native-vector-icons/FontAwesome5';
@@ -10,7 +10,7 @@ import {TextInputPdf} from '_atoms';
 import {DropDownButton} from '_atoms';
 import {FailureDailog} from '_atoms';
 import {SucessDialog} from '_atoms';
-import {ProgressDialog} from '_atoms';
+import auth from '@react-native-firebase/auth';
 
 const PdfGenerate = ({navigation}) => {
       const [cno , setCno] = useState('');
@@ -39,23 +39,14 @@ const PdfGenerate = ({navigation}) => {
       const [ageVis , setAgeVis ] = useState(false);
       const [hcVis , setHcVis ] = useState(false);
       const [rtVis , setRtVis ] = useState(false);
-      const[errorStats , setEstatus] = useState(false);
+      const[errorStatus , setEstatus] = useState({
+        name : '',
+        visib : false
+      });
       const[sucessStatus , setSstatus] = useState(false);
+      const [touchDisable , setTouch] = useState(false);
+      const [loadUpdate , setUpdate] = useState(false);
 
-      React.useLayoutEffect(() => {
-        navigation.setOptions({
-        
-          headerRight: () => (
-              <View style = {{flexDirection : 'row' , marginRight : 10}}>
-                <TouchableOpacity onPress = {() => {setVisible(true)}}style = {{alignItems : 'center'}}>
-                    <Icon name = 'arrow-up' color = 'white' size = {12}></Icon>
-                    <Text style ={{color : 'white'}}>Upload</Text>
-                </TouchableOpacity>
-            </View>
-          )
-        });
-      }, []);
-       
       useEffect(() => {
         //start Listening
           const onValueChange = database().ref('/case/')
@@ -76,7 +67,7 @@ const PdfGenerate = ({navigation}) => {
         );
         return () => { Geolocation.clearWatch(watchId) };
       }, [lat, long]);
-  
+      
       const changeCallerName = (val) => {
           setCname(val);
       }
@@ -146,17 +137,108 @@ const PdfGenerate = ({navigation}) => {
                     ])
         setHcVis(true);
       }
-
-      const progressDisp = (visi) => {
-        return (
-          <ProgressDialog name = 'Fetching Data' visible = {visi} />
-        )
+      const rtData = () => {
+        setdropData ([{name : 'Solo' , key :'Solo'} ,
+                      {name : 'Co-Rescue' , key : 'Co-Rescue'},
+                      {name : 'Team' , key : 'Team'}
+                    ])
+        setRtVis(true);
       }
+      const validation = () => {
+        if(city === 'City'){
+          setEstatus({visib : true , name : 'City'})
+        }else if(oty === 'Operation Type') {
+          setEstatus({visib : true , name : 'Operation Type'})
+        }else if(lat === ''){
+          setEstatus({visib : true , name : 'Latitude'})
+        }else if(long === ''){
+          setEstatus({visib : true , name : 'Longitude'})
+        }else if(sc === 'Species Count'){
+          setEstatus({visib : true , name : 'Species Count'})
+        }else if(st === 'Species Type'){
+          setEstatus({visib : true , name : 'Species Type'})
+        }else if(rs === 'Rescue Site'){
+          setEstatus({visib : true , name : 'Rescue Site'})
+        }else if(age === 'Age'){
+          setEstatus({visib : true , name : 'Age'})
+        }else if(hc === 'Health Condition'){
+          setEstatus({visib : true , name : 'Health Condition'})
+        }else if(spname === ''){
+          setEstatus({visib : true , name : 'Specie Name'})
+        }else if(cname === ''){
+          setEstatus({visib : true , name : 'Caller Name'})
+        }else if(cpno === ''){
+          setEstatus({visib : true , name : 'Caller Phone No'})
+        }else if(cadd === ''){
+          setEstatus({visib : true , name : 'Caller Address'})
+        }else if(rt === 'Rescue Type'){
+          setEstatus({visib : true , name : 'Rescue Type'})
+        }else if(rname === ''){
+          setEstatus({visib : true , name : 'Rescuer Name'})
+        }else{
+          setTouch(true);
+          setUpdate(true);
+          uploadData();
+        }
+      }
+      const uploadData = () => {
+        var date = new Date().getDate(); //Current Date
+        var month = new Date().getMonth() + 1; //Current Month
+        var year = new Date().getFullYear(); //Current Year
+        var hours = new Date().getHours(); //Current Hours
+        var min = new Date().getMinutes(); //Current Minutes
+        var sec = new Date().getSeconds(); //Current Seconds
+        var dateFormat = date + '/' + month + '/' + year
+        var timeFormat = hours + ':' + min + ':' + sec
+        const user = auth().currentUser.uid;
+        const pushId = database().ref('/case')
+                                   .push();
+              pushId.set({
+                date: dateFormat , 
+                time : timeFormat ,
+                userId : user ,
+                caseno : cno,
+                city : city,
+                operationType : oty,
+                latitude : lat,
+                longitude : long,
+                speciesCount : sc,
+                species : st,
+                rescueSite : rs ,
+                age : age,
+                healthCondition : hc,
+                speciename : spname ,
+                callername : cname,
+                callercno : cpno,
+                calleradress : cadd,
+                rescueType : rt,
+                rescuername : rname
+              })
+              .then(() => {
+                            setUpdate(false)
+                            setSstatus(true)});
+      }
+      React.useLayoutEffect(() => {
+        navigation.setOptions({
+          headerRight: () => (
+              <View style = {{flexDirection : 'row' , marginRight : 10}}>
+                <ActivityIndicator animating = {loadUpdate} style = {{marginRight : 10}}  size = 'small' color = '#fff'/>
+                <TouchableOpacity disabled={touchDisable} onPress = {() => validation()}style = {{alignItems : 'center'}}>
+                    <Icon name = 'arrow-up' color = 'white' size = {12}></Icon>
+                    <Text style ={{color : 'white'}}>Upload</Text>
+                </TouchableOpacity>
+            </View>
+          )
+        });
+      }, [city , oty , lat , long , sc , st , rs ,age , hc , spname , cname , cpno , cadd , rt , rname , touchDisable , loadUpdate]);
+       
     return (
         <View style = {{backgroundColor : '#121212' , flex : 1}}>
             <Provider>
-             <FailureDailog visib = {errorStats}/>
-             <SucessDialog visib = {sucessStatus}/>
+              <FailureDailog name = {errorStatus.name} visib = {errorStatus.visib} ok = {() => setEstatus({visib : false})}/>
+              <SucessDialog visib = {sucessStatus} ok = {() => {
+                                                                setTouch(false)
+                                                                setSstatus(false)}}/>
               <DropDownDialog data = {dropData} setValue = {(val) => setCity(val)} 
                               dropvalue = {city} name = 'City' dvis = {cityVis} 
                               ok = {() => setCityVis(false)}/>
@@ -182,22 +264,22 @@ const PdfGenerate = ({navigation}) => {
                               dropvalue = {rt} name = 'Rescue Type' dvis = {rtVis} 
                               ok = {() => setRtVis(false)}/>
                 <ScrollView>
-                  <TextInputPdf lab = 'Case No :' val = {cno} edit = {false}/>
+                  <TextInputPdf lab = 'Case No :' val = {cno} edit = {true}/>
                   <DropDownButton value = {city} press = {() => cityData()}/>
                   <DropDownButton value = {oty} press = {() => otyData()}/>
-                  <TextInputPdf lab = 'Latitude :' val = {lat} edit = {true}/>
-                  <TextInputPdf lab = 'Longitude :' val = {long} edit = {true}/>
+                  <TextInputPdf lab = 'Latitude :' val = {lat} edit = {false}/>
+                  <TextInputPdf lab = 'Longitude :' val = {long} edit = {false}/>
                   <DropDownButton value = {sc} press = {() => scData()}/>
                   <DropDownButton value = {st} press = {() => stData()}/>
                   <DropDownButton value = {rs} press = {() => rsData()}/>
                   <DropDownButton value = {age} press = {() => ageData()}/>
                   <DropDownButton value = {hc} press = {() => hcData()}/>
-                  <TextInputPdf lab = 'Species :' val = {spname} edit = {true}/>
+                  <TextInputPdf changetxt = {(val) => {setSpname(val)}} lab = 'Species :' val = {spname} edit = {true}/>
                   <TextInputPdf changetxt = {changeCallerName} lab = 'Caller Name :' val = {cname} edit = {true}/>
-                  <TextInputPdf lab = 'Caller Phone No :' val = {cpno} edit = {true}/>
-                  <TextInputPdf lab = 'Caller Address :' val = {cadd} edit = {true}/>
-                  <DropDownButton value = {rt} press = {() => cityData()}/>
-                  <TextInputPdf lab = 'Rescuer Name :' val = {rname} edit = {true}/>
+                  <TextInputPdf changetxt = {(val) => {setCpno(val)}} lab = 'Caller Phone No :' val = {cpno} edit = {true}/>
+                  <TextInputPdf changetxt = {(val) => {setcAdd(val)}} lab = 'Caller Address :' val = {cadd} edit = {true}/>
+                  <DropDownButton value = {rt} press = {() => rtData()}/>
+                  <TextInputPdf changetxt = {(val) => {setRname(val)}} lab = 'Rescuer Name :' val = {rname} edit = {true}/>
                 </ScrollView>
            </Provider>
                   

@@ -86,8 +86,8 @@ const DetailsCase = ({route,navigation}) => {
         navigation.setOptions({
           headerRight: () => (
               <View style = {{flexDirection : 'row'}}>
-                  <Icon color = 'white' style = {{marginRight :20}} size = {20} name = 'trash' onPress = {() => setVisible(true)}/>
-                  <Icon color = {buttonS.color} style = {{marginRight :20}} size = {20} name = {buttonS.icons} onPress = {() => updateDetails()}/>
+                  <Icon color = 'white' style = {{marginRight :30}} size = {20} name = 'trash' onPress = {() => setVisible(true)}/>
+                  <Icon color = {buttonS.color} style = {{marginRight :30}} size = {20} name = {buttonS.icons} onPress = {() => updateDetails()}/>
                   {/* <TouchableOpacity>
                     <Icon name= 'file-upload' size={20} color="white" style = {{margin : 8 }} />
                     <Text style = {{color : 'white' , fontWeight : 'bold' , fontSize : 16 , marginTop:10 , marginRight : 15 }}>Upload</Text>

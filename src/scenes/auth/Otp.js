@@ -1,22 +1,15 @@
 import React , {useState, useEffect} from 'react';
-import {
-    StyleSheet,
-    View,
-    Text,
-    Button,
-  } from 'react-native';
-  
-
-import {TextInput, HelperText , ActivityIndicator} from 'react-native-paper';
+import {StyleSheet, View,Text,YellowBox} from 'react-native';
+import {TextInput, HelperText} from 'react-native-paper';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
-import database from '@react-native-firebase/database';
 import auth from '@react-native-firebase/auth'
-import { Dialog, Portal,Provider, } from 'react-native-paper';
+import { Provider} from 'react-native-paper';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { StackActions } from '@react-navigation/native';
 import {ProgressDialog} from '_atoms';
 
   const OTP = ({navigation}) => {
+    YellowBox.ignoreWarnings(['Clipboard'])
     const [phoneNo,setphoneNo] = useState('');
     const [confirm, setConfirm] = useState(null);
     const [code, setCode] = useState('');
@@ -25,23 +18,35 @@ import {ProgressDialog} from '_atoms';
     const [progress , setProgress] = useState(false);
     const [progressLabel , setpLabel] = useState('');
     const [otpmessage , setotpmessage] = useState('');
+    const [second , setSecond] = useState(null);
 
-    // useEffect(() => {
-    //   auth().onAuthStateChanged ((user) => {
-    //     if(user) {
-    //       navigation.dispatch(
-    //         StackActions.replace('Profile')
-    //       );
-    //     }
-    // })
-    // },[]);
+    useEffect(() => {
+        if(second == 0) {
+          setProgress(false)
+        } 
 
+        const interval = setInterval(() => {
+            setSecond(second - 1);
+        } , 1000);
 
+        return () => clearInterval(interval);
+    },[second]);
+
+    const confirmUser = () => {
+          auth().onAuthStateChanged ((user) => {
+          if(user) {
+            navigation.dispatch(
+              StackActions.replace('Profile')
+            );
+          }
+      })
+    }
     const phoneNoValidation = () => {
           var len = phoneNo.length;
           if(len == 10){
               setphoneValidate(false)
               setProgress(true)
+              setSecond(15)
               setpLabel('Generating OTP')
               signInWithPhoneNumber('+91 '+ phoneNo)
           }else{
@@ -54,6 +59,8 @@ import {ProgressDialog} from '_atoms';
             setConfirm(confirmation);
             console.log(confirm) ;
             setProgress(false)
+            setSecond(null);
+            confirmUser();
       }
 
       const otpValidation = () => {
@@ -61,6 +68,7 @@ import {ProgressDialog} from '_atoms';
           if(otpLen == 6){
               setotpValidate(false);
               setProgress(true)
+              setSecond(15)
               setpLabel('Validating OTP')
               confirmCode();
           }
@@ -76,24 +84,24 @@ import {ProgressDialog} from '_atoms';
         try {
           await confirm.confirm(code)
                         .then(user => {
-                          console.log(user.uid)
-                          setProgress(false);
-                          navigation.dispatch(
-                            StackActions.replace('Profile')
-                          );
-                        })
-                        
-        } catch (error) {
-          setProgress(false);
-          setotpValidate(true);
-          setotpmessage(error.message);
+                            console.log(user.uid)
+                            setProgress(false);
+                            navigation.dispatch(
+                              StackActions.replace('Profile')
+                            );
+                          })
+                          
+          } catch (error) {
+            setProgress(false);
+            setotpValidate(true);
+            setotpmessage(error.message);
+          }
         }
-      }
     
     return (
       <Provider>
       <View style = {styles.container}>
-             <ProgressDialog name = {progressLabel} visible = {progress}/>
+             <ProgressDialog time = {second} name = {progressLabel} visible = {progress}/>
                       <Text style = {styles.textStyle}>SIGN-UP</Text>
                       <TextInput 
                         style = {{alignSelf : 'stretch' , marginLeft : 20,marginRight : 20 ,  fontSize : 25 , fontWeight : 'bold'}}
@@ -121,7 +129,7 @@ import {ProgressDialog} from '_atoms';
                         </HelperText>
 
                         <View>
-                          <TouchableOpacity style = {{marginTop : 30 }}  onPress = {() =>phoneNoValidation()}>
+                          <TouchableOpacity style = {{marginTop : 30 }}  onPress = {() => phoneNoValidation()}>
                                   <Text style = {{color : '#47B1DC' , fontSize : 20 , alignSelf : 'center'}}>Generate OTP</Text>
                           </TouchableOpacity>
                         </View>

@@ -11,7 +11,6 @@ import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
 import {Image , StyleSheet,View,Text,Dimensions, TouchableOpacity,} from 'react-native';
 import Pdf from 'react-native-pdf';
 import RNFetchBlob from 'rn-fetch-blob';
-import Mailer from 'react-native-mail';
 
  const generatePdf = async () => {
   // Create a PDF page with text and rectangles
@@ -193,35 +192,6 @@ import Mailer from 'react-native-mail';
         });
   }
 
-  const handleEmail = () => {
-    const dirs =   RNFetchBlob.fs.dirs.DownloadDir;
-    const pdfPath = `${dirs}/hello.pdf`;
-    console.log(pdfPath)
-    Mailer.mail({
-      subject: 'need People',
-      recipients: ['support@example.com'],
-      ccRecipients: ['supportCC@example.com'],
-      bccRecipients: ['supportBCC@example.com'],
-      body: '<b>A Bold Body</b>',
-      isHTML: true,
-      attachments: [{
-        path: pdfPath,  // The absolute path of the file from which to read data.
-        type: 'pdf',   // Mime Type: jpg, png, doc, ppt, html, pdf, csv
-        // mimeType - use only if you want to use custom type
-        name: 'CAse No',   // Optional: Custom filename for attachment
-      }]
-    }, (error, event) => {
-      Alert.alert(
-        error,
-        event,
-        [
-          {text: 'Ok', onPress: () => console.log('OK: Email Error Response')},
-          {text: 'Cancel', onPress: () => console.log('CANCEL: Email Error Response')}
-        ],
-        { cancelable: true }
-      )
-    });
-  }
         const PdfTest = ({navigation}) => {
                 
             return (   
@@ -231,9 +201,6 @@ import Mailer from 'react-native-mail';
                     </TouchableOpacity>
                     <TouchableOpacity onPress = {() => navigation.navigate('PdfDis')}>
                     <Text style = {{marginTop : 20}}>Display PDF</Text>
-                    </TouchableOpacity>
-                     <TouchableOpacity onPress = {() => handleEmail()}>
-                    <Text style = {{marginTop : 20}}>share</Text>
                     </TouchableOpacity>
                     < Image style = {{marginTop : 20}} source = {require('../image/ngo.png')} />
                 </View>

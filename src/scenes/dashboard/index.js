@@ -4,16 +4,12 @@ import {ScrollView} from 'react-native-gesture-handler';
 import {DashHeader} from '_molecules/dashboard';
 import {DashFooter} from '_molecules/dashboard';
 import {DashBody} from '_molecules/dashboard';
-import {useNetInfo} from '@react-native-community/netinfo';
-import {CheckInternet} from '_atoms';
 
 const DashBoard = () => {
-        const netInfo = useNetInfo();
         return (
                 <View style={styles.container}>
                     <ScrollView>
-                        {!netInfo.isConnected ?  <CheckInternet/> : null}
-                       <DashHeader/>
+                        <DashHeader/>
                         <DashBody/>
                         <DashFooter />
                     </ScrollView>

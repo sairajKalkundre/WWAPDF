@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       flexDirection: 'row',
       width,
+      marginBottom: 5
     },
     offlineText: { color: '#fff' }
   });
